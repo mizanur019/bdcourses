@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Selling Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">Course Platform</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showPage('home')" class="nav-btn text-gray-700 hover:text-blue-600">Home</button>
+                    <button onclick="showPage('courses')" class="nav-btn text-gray-700 hover:text-blue-600">Courses</button>
+                    <button onclick="showPage('about')" class="nav-btn text-gray-700 hover:text-blue-600">About</button>
+                    
+                    <div id="auth-buttons" class="flex space-x-2">
+                        <button onclick="showPage('login')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Login</button>
+                        <button onclick="showPage('signup')" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50">Sign Up</button>
+                    </div>
+                    
+                    <div id="user-menu" class="hidden flex items-center space-x-4">
+                        <button onclick="showPage('dashboard')" class="text-gray-700 hover:text-blue-600">Dashboard</button>
+                        <span id="user-email" class="text-gray-700"></span>
+                        <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="page-content">
+        <!-- Home Page -->
+        <div id="home-page" class="page-content">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <!-- Hero Section -->
+                <div class="text-center mb-16">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">Learn New Skills Online</h1>
+                    <p class="text-xl text-gray-600 mb-8">Join thousands of students learning from expert instructors</p>
+                    <button onclick="showPage('courses')" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors">
+                        Browse Courses
+                    </button>
+                </div>
+
+                <!-- Featured Courses -->
+                <div class="mb-16">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Featured Courses</h2>
+                    <div id="featured-courses" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Featured courses will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Expert Instructors</h3>
+                        <p class="text-gray-600">Learn from industry professionals with years of experience</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Lifetime Access</h3>
+                        <p class="text-gray-600">Access your courses anytime, anywhere with lifetime access</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Fast Learning</h3>
+                        <p class="text-gray-600">Structured curriculum designed for quick and effective learning</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login-page" class="page-content hidden">
+            <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+                    </div>
+                    <form id="login-form" class="mt-8 space-y-6">
+                        <div class="space-y-4">
+                            <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email address">
+                            <input type="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Password">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Sign In
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        <p class="text-gray-600">Don't have an account? 
+                            <button onclick="showPage('signup')" class="text-blue-600 hover:underline">Sign up</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signup Page -->
+        <div id="signup-page" class="page-content hidden">
+            <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
+                    </div>
+                    <form id="signup-form" class="mt-8 space-y-6">
+                        <div class="space-y-4">
+                            <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Full Name">
+                            <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email address">
+                            <input type="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Password">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Sign Up
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        <p class="text-gray-600">Already have an account? 
+                            <button onclick="showPage('login')" class="text-blue-600 hover:underline">Sign in</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Page -->
+        <div id="courses-page" class="page-content hidden">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">All Courses</h1>
+                    <!-- Removed category filter section, kept only search -->
+                    <div class="flex space-x-4">
+                        <input type="text" id="search-input" placeholder="Search courses..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Courses will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Detail Page -->
+        <div id="course-detail-page" class="page-content hidden">
+            <div id="course-detail-content">
+                <!-- Course details will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Payment Page -->
+        <div id="payment-page" class="page-content hidden">
+            <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div id="payment-content">
+                    <!-- Payment form will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page-content hidden">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-8">My Dashboard</h1>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Learning Stats -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">Learning Stats</h2>
+                        <div id="learning-stats">
+                            <!-- Stats will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- My Courses -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">My Courses</h2>
+                        <div id="user-courses">
+                            <!-- User courses will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment History -->
+                <div class="mt-8 bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold mb-4">Payment History</h2>
+                    <div id="payment-history">
+                        <!-- Payment history will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about-page" class="page-content hidden">
+            <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">আমাদের সম্পর্কে জানুন</h1>
+                </div>
+
+                <!-- Updated About Us section with new Bengali content and founder photo -->
+                <!-- Founder Section -->
+                <div class="text-center mb-12">
+                    <div class="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-blue-600 shadow-lg">
+                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2025-08-16_17-31-02.jpg-QaXRXpphCNMXoKILCGKtkI7tAXVDTv.jpeg" alt="Founder Photo" class="w-full h-full object-cover">
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-6 max-w-md mx-auto">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Founder: Md Tanvir Rahman</h3>
+                        <p class="text-gray-700 mb-3">BSC in Agriculture, Sher-E-Bangla Agriculture University.</p>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p>📧 ইমেইল: mdmizanur01907@gmail.com</p>
+                            <p>📱 WhatsApp: 01750673641</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="prose prose-lg mx-auto text-center">
+                    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                        <p class="text-lg text-gray-700 mb-6">আমাদের ওয়েবসাইটটি তৈরি করা হয়েছে শিক্ষার্থীদের জন্য একটি সহজ ও সাশ্রয়ী প্ল্যাটফর্ম হিসেবে। এখানে বাংলাদেশের স্বনামধন্য প্রতিষ্ঠানের বিভিন্ন কোর্স খুবই কম খরচে পাওয়া যায়।</p>
+                        
+                        <h2 class="text-2xl font-bold text-blue-600 mb-4">🔑 কেন আমাদের বেছে নেবেন?</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-gray-700">✅ একবার এনরোল করলে পাবেন লাইফটাইম এক্সেস</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-gray-700">📱 যেকোনো সময়, যেকোনো ডিভাইস থেকে কোর্স করা যাবে</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <p class="text-gray-700">🎯 মানসম্মত কনটেন্ট, যা আপনাকে বাস্তব জীবনে দক্ষ হতে সাহায্য করবে</p>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <p class="text-gray-700">💰 সর্বনিম্ন দামে সর্বোচ্চ মানের শিক্ষা</p>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-bold text-blue-600 mb-4">আমাদের লক্ষ্য হলো—</h2>
+                        <div class="space-y-3 mb-8">
+                            <p class="text-lg text-gray-700">👉 সবার জন্য শিক্ষাকে সহজলভ্য করা</p>
+                            <p class="text-lg text-gray-700">👉 শিক্ষার্থীদের দক্ষতা বৃদ্ধি করা</p>
+                            <p class="text-lg text-gray-700">👉 ভবিষ্যতের জন্য একটি শক্ত ভিত্তি তৈরি করা</p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-lg">
+                            <h3 class="text-xl font-bold mb-2">💡 আমাদের সাথে থাকুন, আর গড়ে তুলুন নিজের উজ্জ্বল ভবিষ্যৎ!</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdxERUyOHVjXNgqRdgjW_IZvx4NnbtGBI",
+            authDomain: "courses-sell.firebaseapp.com",
+            projectId: "courses-sell",
+            storageBucket: "courses-sell.firebasestorage.app",
+            messagingSenderId: "726590758922",
+            appId: "1:726590758922:web:8ba8b2008086abfc1a3ff3",
+            measurementId: "G-WMDHLK5312"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let courses = [];
+        let enrollments = [];
+        let payments = [];
+
+        auth.onAuthStateChanged(async (user) => {
+            console.log("[v0] Auth state changed:", user ? user.email : "No user");
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-buttons').classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+                document.getElementById('user-email').textContent = user.email;
+                
+                try {
+                    // Check if user document exists, create if not
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (!userDoc.exists) {
+                        await db.collection('users').doc(user.uid).set({
+                            email: user.email,
+                            role: 'user',
+                            createdAt: new Date()
+                        });
+                    }
+                    
+                    // Check if user is admin
+                    const userData = userDoc.data();
+                    if (userData && userData.role === 'admin') {
+                        // Add admin link to navigation if not already present
+                        const existingAdminLink = document.querySelector('a[href="admin.html"]');
+                        if (!existingAdminLink) {
+                            const adminLink = document.createElement('a');
+                            adminLink.href = 'admin.html';
+                            adminLink.textContent = 'Admin Panel';
+                            adminLink.className = 'text-gray-700 hover:text-blue-600 mr-4';
+                            document.getElementById('user-menu').insertBefore(adminLink, document.getElementById('user-menu').firstChild);
+                        }
+                    }
+                    
+                    await loadUserData();
+                } catch (error) {
+                    console.error("[v0] Error loading user data:", error);
+                }
+            } else {
+                console.log("[v0] User logged out");
+                currentUser = null;
+                document.getElementById('auth-buttons').classList.remove('hidden');
+                document.getElementById('user-menu').classList.add('hidden');
+                
+                const adminLink = document.querySelector('a[href="admin.html"]');
+                if (adminLink) {
+                    adminLink.remove();
+                }
+            }
+        });
+
+        // Load courses on page load
+        window.addEventListener('load', async () => {
+            await loadCourses();
+            showFeaturedCourses();
+            showAllCourses();
+        });
+
+        async function loadCourses() {
+            try {
+                const coursesSnapshot = await db.collection('courses').get();
+                courses = [];
+                coursesSnapshot.forEach((doc) => {
+                    courses.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showToast('Error loading courses', 'error');
+            }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+
+            try {
+                // Load user enrollments
+                const enrollmentsQuery = db.collection('enrollments').where('userId', '==', currentUser.uid);
+                const enrollmentsSnapshot = await enrollmentsQuery.get();
+                enrollments = [];
+                enrollmentsSnapshot.forEach((doc) => {
+                    enrollments.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Load user payments
+                const paymentsQuery = db.collection('payments').where('userId', '==', currentUser.uid);
+                const paymentsSnapshot = await paymentsQuery.get();
+                payments = [];
+                paymentsSnapshot.forEach((doc) => {
+                    payments.push({ id: doc.id, ...doc.data() });
+                });
+
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showToast('Error loading user data', 'error');
+            }
+        }
+
+        function showFeaturedCourses() {
+            const featuredContainer = document.getElementById('featured-courses');
+            const featuredCourses = courses.slice(0, 3);
+            
+            featuredContainer.innerHTML = featuredCourses.map(course => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="${course.image || '/placeholder.svg?height=200&width=300'}" alt="${course.title}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">${course.title}</h3>
+                        <p class="text-gray-600 mb-4">${course.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">৳${course.price}</span>
+                            <button onclick="showCourseDetail('${course.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAllCourses() {
+            const coursesGrid = document.getElementById('courses-grid');
+            coursesGrid.innerHTML = courses.map(course => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="${course.image || '/placeholder.svg?height=200&width=300'}" alt="${course.title}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">${course.title}</h3>
+                        <p class="text-gray-600 mb-4">${course.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">৳${course.price}</span>
+                            <button onclick="showCourseDetail('${course.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function isUserEnrolled(courseId) {
+            if (!currentUser) return false;
+            return enrollments.some(enrollment => 
+                enrollment.courseId === courseId && 
+                enrollment.userId === currentUser.uid && 
+                enrollment.status === 'approved'
+            );
+        }
+
+        function showCourseDetail(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+
+            const isEnrolled = isUserEnrolled(courseId);
+            
+            const enrollmentButton = isEnrolled ? `
+                <div class="flex flex-col items-end space-y-2">
+                    <span class="text-green-600 font-semibold text-lg">Already Enrolled</span>
+                    <button onclick="showPage('dashboard')" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        Continue Your Course
+                    </button>
+                </div>
+            ` : `
+                <button onclick="enrollInCourse('${course.id}')" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors">
+                    Enroll Now
+                </button>
+            `;
+
+            const container = document.getElementById('course-detail-content');
+            container.innerHTML = `
+                <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="${course.image || '/placeholder.svg?height=300&width=600'}" alt="${course.title}" class="w-full h-64 object-cover">
+                        <div class="p-8">
+                            <h1 class="text-3xl font-bold text-gray-900 mb-4">${course.title}</h1>
+                            <p class="text-gray-600 mb-6">${course.description}</p>
+                            
+
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="text-3xl font-bold text-blue-600">৳${course.price}</span>
+                                    <p class="text-gray-500">One-time payment</p>
+                                </div>
+                                ${enrollmentButton}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showPage('course-detail');
+        }
+
+        async function enrollInCourse(courseId) {
+            if (!currentUser) {
+                showPage('login');
+                return;
+            }
+
+            if (isUserEnrolled(courseId)) {
+                showToast('You are already enrolled in this course!', 'error');
+                showPage('dashboard');
+                return;
+            }
+
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+
+            showPaymentPage(courseId);
+        }
+
+        function showPaymentPage(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+
+            const container = document.getElementById('payment-content');
+            container.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold mb-6">Payment for: ${course.title}</h2>
+                    <div class="mb-6">
+                        <p class="text-lg">Course Price: <span class="font-bold text-blue-600">৳${course.price}</span></p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <h3 class="font-semibold text-yellow-800 mb-2">Payment Instructions:</h3>
+                        <ol class="list-decimal list-inside text-yellow-700 space-y-1">
+                            <li>Send ৳${course.price} to our Bkash/Nagad number: 01712345678</li>
+                            <li>Take a screenshot of the transaction</li>
+                            <li>Fill out the form below with transaction details</li>
+                            <li>Wait for admin approval (usually within 24 hours)</li>
+                        </ol>
+                    </div>
+                    
+                    <form id="payment-form">
+                        <input type="hidden" name="courseId" value="${courseId}">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <select name="paymentMethod" required class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Payment Method</option>
+                                <option value="bkash">Bkash</option>
+                                <option value="nagad">Nagad</option>
+                                <option value="rocket">Rocket</option>
+                            </select>
+                            <input type="text" name="transactionId" placeholder="Transaction ID" required class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <input type="text" name="senderNumber" placeholder="Your Mobile Number" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+                        <textarea name="notes" placeholder="Additional notes (optional)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6" rows="3"></textarea>
+                        
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            Submit Payment Details
+                        </button>
+                    </form>
+                </div>
+            `;
+            
+            showPage('payment');
+            setupPaymentForm();
+        }
+
+        function setupPaymentForm() {
+            document.getElementById('payment-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const paymentData = {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    courseId: formData.get('courseId'),
+                    paymentMethod: formData.get('paymentMethod'),
+                    transactionId: formData.get('transactionId'),
+                    senderNumber: formData.get('senderNumber'),
+                    notes: formData.get('notes'),
+                    amount: courses.find(c => c.id === formData.get('courseId')).price,
+                    status: 'pending',
+                    createdAt: new Date()
+                };
+
+                try {
+                    await db.collection('payments').add(paymentData);
+                    showToast('Payment details submitted successfully! Please wait for admin approval.', 'success');
+                    showPage('dashboard');
+                    await loadUserData();
+                } catch (error) {
+                    console.error('Error submitting payment:', error);
+                    showToast('Error submitting payment details', 'error');
+                }
+            });
+        }
+
+        function updateDashboard() {
+            if (!currentUser) return;
+
+            const userCoursesContainer = document.getElementById('user-courses');
+            const userEnrollments = enrollments.filter(e => e.status === 'approved');
+            
+            if (userEnrollments.length === 0) {
+                userCoursesContainer.innerHTML = '<p class="text-gray-500">No enrolled courses yet. <a href="#" onclick="showPage(\'courses\')" class="text-blue-600 hover:underline">Browse courses</a></p>';
+            } else {
+                userCoursesContainer.innerHTML = userEnrollments.map(enrollment => {
+                    const course = courses.find(c => c.id === enrollment.courseId);
+                    if (!course) return '';
+                    
+                    return `
+                        <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                            <h3 class="font-semibold text-lg mb-2">${course.title}</h3>
+                            <p class="text-gray-600 mb-3">${course.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">Progress: ${enrollment.progress || 0}%</span>
+                                <a href="${course.driveLink || '#'}" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    Continue Learning
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const statsContainer = document.getElementById('learning-stats');
+            statsContainer.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span>Enrolled Courses:</span>
+                        <span class="font-semibold">${userEnrollments.length}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Completed:</span>
+                        <span class="font-semibold">${userEnrollments.filter(e => e.progress === 100).length}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>In Progress:</span>
+                        <span class="font-semibold">${userEnrollments.filter(e => e.progress > 0 && e.progress < 100).length}</span>
+                    </div>
+                </div>
+            `;
+
+            const paymentHistoryContainer = document.getElementById('payment-history');
+            const userPayments = payments.slice(0, 5);
+            
+            if (userPayments.length === 0) {
+                paymentHistoryContainer.innerHTML = '<p class="text-gray-500">No payment history</p>';
+            } else {
+                paymentHistoryContainer.innerHTML = userPayments.map(payment => {
+                    const course = courses.find(c => c.id === payment.courseId);
+                    const statusColor = payment.status === 'approved' ? 'text-green-600' : 
+                                       payment.status === 'rejected' ? 'text-red-600' : 'text-yellow-600';
+                    
+                    return `
+                        <div class="border-b border-gray-200 pb-2 mb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium">${course?.title || 'Unknown Course'}</p>
+                                    <p class="text-sm text-gray-500">৳${payment.amount}</p>
+                                </div>
+                                <span class="text-sm ${statusColor} capitalize">${payment.status}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Authentication functions
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Signing in...';
+                
+                await auth.signInWithEmailAndPassword(formData.get('email'), formData.get('password'));
+                showToast('Login successful!', 'success');
+                showPage('home');
+                
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign In';
+            } catch (error) {
+                console.error("[v0] Login error:", error);
+                showToast(error.message, 'error');
+                
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign In';
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Creating account...';
+                
+                const userCredential = await auth.createUserWithEmailAndPassword(formData.get('email'), formData.get('password'));
+                
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    role: 'user',
+                    createdAt: new Date()
+                });
+                
+                showToast('Account created successfully!', 'success');
+                showPage('home');
+                
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign Up';
+            } catch (error) {
+                console.error("[v0] Signup error:", error);
+                showToast(error.message, 'error');
+                
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign Up';
+            }
+        });
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut().then(() => {
+                    showToast('Logged out successfully', 'success');
+                    showPage('home');
+                }).catch((error) => {
+                    console.error("[v0] Logout error:", error);
+                    showToast('Error logging out', 'error');
+                });
+            }
+        }
+
+        function showPage(pageName) {
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            document.getElementById(pageName + '-page').classList.remove('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } text-white`;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        document.getElementById('search-input').addEventListener('input', filterCourses);
+
+        function filterCourses() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredCourses = courses;
+            
+            if (searchTerm) {
+                filteredCourses = filteredCourses.filter(course => 
+                    course.title.toLowerCase().includes(searchTerm) || 
+                    course.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            const coursesGrid = document.getElementById('courses-grid');
+            coursesGrid.innerHTML = filteredCourses.map(course => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="${course.image || '/placeholder.svg?height=200&width=300'}" alt="${course.title}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">${course.title}</h3>
+                        <p class="text-gray-600 mb-4">${course.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">৳${course.price}</span>
+                            <button onclick="showCourseDetail('${course.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
